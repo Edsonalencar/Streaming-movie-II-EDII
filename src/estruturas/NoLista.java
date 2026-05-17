@@ -9,4 +9,8 @@ public class NoLista {
     NoLista(Filme filme) {
         this.filme = filme;
     }
+
+    public Filme filme() {
+        return filme;
+    }
 }
