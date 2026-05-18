@@ -17,7 +17,7 @@ public class TabelaHash {
 
     public ResultadoBusca<NoLista> buscar(int id) {
         int indice = Math.floorMod(id, CAPACIDADE);
-        int comparacoes = 1; // bucket probe
+        int comparacoes = 0;
         EntradaHash entrada = baldes[indice];
         while (entrada != null) {
             comparacoes++;
