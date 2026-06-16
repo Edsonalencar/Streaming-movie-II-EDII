@@ -17,7 +17,7 @@ public class TabelaHash {
 
     public ResultadoBusca<NoLista> buscar(int id) {
         int indice = Math.floorMod(id, CAPACIDADE);
-        int comparacoes = 0;
+        int comparacoes = 1; // acesso ao balde conta como 1 comparação (convenção ADR-004)
         EntradaHash entrada = baldes[indice];
         while (entrada != null) {
             comparacoes++;
