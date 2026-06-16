@@ -12,13 +12,14 @@ public class GeradorDeFilmesTest {
     private static int failed = 0;
 
     private static final Set<String> CATEGORIAS_VALIDAS = new HashSet<>(
-            Arrays.asList("Ação", "Drama", "Comédia", "Terror", "Ficção"));
+            Arrays.asList("Ação", "Ficção Científica", "Drama", "Terror", "Comédia", "Suspense"));
 
     public static void main(String[] args) {
         testGerar1000RetornaExatamente1000();
         testIDsSequenciaisSemDuplicatas();
         testReproducibilidade();
         testCamposValidos();
+        testNomesUnicos();
 
         System.out.println("\n=== GeradorDeFilmesTest: " + passed + " passed, " + failed + " failed ===");
         if (failed > 0) System.exit(1);
@@ -66,6 +67,13 @@ public class GeradorDeFilmesTest {
             if (!CATEGORIAS_VALIDAS.contains(f.categoria())) { todoValidos = false; break; }
         }
         assertTrue("todos os filmes têm nome, sinopse, ano 1970..2025 e categoria válida", todoValidos);
+    }
+
+    private static void testNomesUnicos() {
+        List<Filme> filmes = GeradorDeFilmes.gerar(1000);
+        Set<String> nomes = new HashSet<>();
+        for (Filme f : filmes) nomes.add(f.nome());
+        assertEquals("1000 nomes distintos (repetições ganham sufixo de edição)", 1000, nomes.size());
     }
 
     private static void assertEquals(String label, int expected, int actual) {
