@@ -7,96 +7,58 @@ public class MainTest {
     private static int failed = 0;
 
     public static void main(String[] args) {
-        testMainCompletesWithoutException();
-        testOutputContainsSectionHeaders();
-        testOutputContainsSummaryTable();
-        testOutputContainsAnalysisParagraph();
+        // Executa Main uma única vez (a simulação completa contém pausas) e
+        // valida a saída capturada com várias asserções.
+        String output = executarMain();
+
+        testCompletouSemExcecao(output);
+        testContemSecoes(output);
+        testContemRelatorio(output);
+        testContemAnalise(output);
 
         System.out.println("\n=== MainTest: " + passed + " passed, " + failed + " failed ===");
         if (failed > 0) System.exit(1);
     }
 
-    private static void testMainCompletesWithoutException() {
+    private static String executarMain() {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
         PrintStream original = System.out;
+        System.setOut(new PrintStream(buf));
         try {
-            System.setOut(new PrintStream(new ByteArrayOutputStream()));
             Main.main(new String[]{});
-            passed++;
-            System.setOut(original);
-            System.out.println("PASS: Main.main completes without exception");
         } catch (Exception e) {
             System.setOut(original);
-            System.out.println("FAIL: Main.main threw " + e);
+            System.out.println("FAIL: Main.main lançou " + e);
             failed++;
-        }
-    }
-
-    private static void testOutputContainsSectionHeaders() {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        PrintStream original = System.out;
-        System.setOut(new PrintStream(buf));
-        try {
-            Main.main(new String[]{});
+            return "";
         } finally {
             System.setOut(original);
         }
-        String output = buf.toString();
-        String[] headers = {
-            "Consultas inválidas",
-            "cache hit",
-            "sem índice",
-            "com índice"
-        };
-        for (String h : headers) {
-            if (output.contains(h)) {
-                passed++;
-                System.out.println("PASS: output contains header \"" + h + "\"");
-            } else {
-                failed++;
-                System.out.println("FAIL: output missing header \"" + h + "\"");
-            }
-        }
+        return buf.toString();
     }
 
-    private static void testOutputContainsSummaryTable() {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        PrintStream original = System.out;
-        System.setOut(new PrintStream(buf));
-        try {
-            Main.main(new String[]{});
-        } finally {
-            System.setOut(original);
-        }
-        String output = buf.toString();
-        boolean hasTable = output.contains("Média") || output.contains("media") || output.contains("comparac");
-        if (hasTable) {
-            passed++;
-            System.out.println("PASS: output contains comparative summary table");
-        } else {
-            failed++;
-            System.out.println("FAIL: output missing comparative summary table");
-        }
+    private static void testCompletouSemExcecao(String output) {
+        assertTrue("Main.main completa e produz saída", output != null && !output.isEmpty());
     }
 
-    private static void testOutputContainsAnalysisParagraph() {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        PrintStream original = System.out;
-        System.setOut(new PrintStream(buf));
-        try {
-            Main.main(new String[]{});
-        } finally {
-            System.setOut(original);
-        }
-        String output = buf.toString();
-        // Analysis paragraph is in Portuguese and mentions the three strategies
-        boolean hasAnalysis = output.contains("cache") && output.contains("índice") &&
-                              (output.contains("AVL") || output.contains("hash"));
-        if (hasAnalysis) {
-            passed++;
-            System.out.println("PASS: output contains Portuguese analysis paragraph");
-        } else {
-            failed++;
-            System.out.println("FAIL: output missing Portuguese analysis paragraph");
-        }
+    private static void testContemSecoes(String output) {
+        String[] secoes = {"Prática Offline 3", "Bateria de consultas",
+                "cache LRU", "preferências", "popularidade", "Huffman"};
+        for (String s : secoes) assertTrue("saída contém seção \"" + s + "\"", output.contains(s));
+    }
+
+    private static void testContemRelatorio(String output) {
+        assertTrue("saída contém relatório comparativo",
+                output.contains("Relatório comparativo") && output.contains("comparações"));
+    }
+
+    private static void testContemAnalise(String output) {
+        assertTrue("saída contém análise (cache + índice + hash)",
+                output.contains("cache") && output.contains("índice") && output.contains("hash"));
+    }
+
+    private static void assertTrue(String label, boolean condition) {
+        if (condition) { System.out.println("PASS: " + label); passed++; }
+        else { System.out.println("FAIL: " + label); failed++; }
     }
 }
