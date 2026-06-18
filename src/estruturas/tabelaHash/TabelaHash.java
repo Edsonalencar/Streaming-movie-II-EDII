@@ -1,4 +1,7 @@
-package estruturas;
+package estruturas.tabelaHash;
+
+import estruturas.ResultadoBusca;
+import estruturas.listaLigada.NoLista;
 
 public class TabelaHash {
     private static final int CAPACIDADE = 2003;
@@ -17,7 +20,7 @@ public class TabelaHash {
 
     public ResultadoBusca<NoLista> buscar(int id) {
         int indice = Math.floorMod(id, CAPACIDADE);
-        int comparacoes = 1; // acesso ao balde conta como 1 comparação (convenção ADR-004)
+        int comparacoes = 1; // o acesso ao balde conta como 1 comparação
         EntradaHash entrada = baldes[indice];
         while (entrada != null) {
             comparacoes++;

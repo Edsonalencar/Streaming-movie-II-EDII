@@ -1,4 +1,4 @@
-package estruturas;
+package estruturas.listaLigada;
 
 import modelo.Filme;
 

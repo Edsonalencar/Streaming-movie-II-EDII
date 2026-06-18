@@ -1,4 +1,4 @@
-package estruturas;
+package estruturas.splay;
 
 import modelo.Filme;
 

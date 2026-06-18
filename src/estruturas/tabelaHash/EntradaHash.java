@@ -1,4 +1,6 @@
-package estruturas;
+package estruturas.tabelaHash;
+
+import estruturas.listaLigada.NoLista;
 
 class EntradaHash {
     int id;

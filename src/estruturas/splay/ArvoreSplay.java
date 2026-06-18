@@ -1,32 +1,17 @@
-package estruturas;
+package estruturas.splay;
 
+import estruturas.ResultadoBusca;
 import modelo.Filme;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Árvore splay chaveada por id de filme.
- *
- * <p>Usada em duas frentes na simulação:</p>
- * <ul>
- *   <li><b>Cliente</b> — registra o histórico de consumo do usuário; o item mais
- *       recentemente acessado fica na raiz (preferência atual).</li>
- *   <li><b>Servidor</b> — registra a popularidade global; os conteúdos mais
- *       acessados pela base inteira migram para perto da raiz.</li>
- * </ul>
- *
- * <p>A cada acesso o nó é levado à raiz pela operação de <i>splay</i>
- * (zig / zig-zig / zig-zag, implementação top-down de Sleator–Tarjan), e um
- * contador de acessos é incrementado para apoiar as análises de frequência.
- * As comparações de busca são contadas seguindo a convenção ADR-004.</p>
- */
 public final class ArvoreSplay {
 
     private NoSplay raiz;
     private int comparacoesUltimaOperacao;
 
-    /** Insere um filme (ou registra novo acesso, se já existir) e faz splay até a raiz. */
+    // Insere o filme (ou conta mais um acesso, se já existir) e leva o nó à raiz.
     public void inserir(Filme f) {
         if (raiz == null) {
             raiz = new NoSplay(f);
@@ -51,7 +36,7 @@ public final class ArvoreSplay {
         raiz = novo;
     }
 
-    /** Acessa um filme pelo id: traz à raiz, conta acesso e devolve as comparações da busca. */
+    // Acessa um filme pelo id: traz à raiz, conta o acesso e devolve as comparações da busca.
     public ResultadoBusca<Filme> acessar(int id) {
         if (raiz == null) return ResultadoBusca.vazio(0);
         raiz = splay(raiz, id);
@@ -63,10 +48,7 @@ public final class ArvoreSplay {
         return ResultadoBusca.vazio(comparacoes);
     }
 
-    /**
-     * Splay top-down: reorganiza a árvore trazendo o nó com a chave {@code id}
-     * (ou o último nó visitado, em caso de ausência) para a raiz.
-     */
+    // Splay top-down: traz o nó da chave id (ou o último visitado, se não existir) para a raiz.
     private NoSplay splay(NoSplay raizAtual, int id) {
         comparacoesUltimaOperacao = 0;
         NoSplay cabecalho = new NoSplay(null); // árvores temporárias esquerda/direita
@@ -122,14 +104,12 @@ public final class ArvoreSplay {
         return x;
     }
 
-    // ---- análise -------------------------------------------------------------
-
-    /** Filme atualmente na raiz (preferência/popularidade mais relevante). Pode ser null. */
+    // Filme atualmente na raiz (preferência/popularidade mais relevante); pode ser null.
     public Filme raiz() {
         return raiz == null ? null : raiz.filme;
     }
 
-    /** Os n filmes mais próximos da raiz, em ordem de nível (BFS). */
+    // Os n filmes mais próximos da raiz, percorrendo a árvore por nível.
     public List<Filme> maisProximosDaRaiz(int n) {
         List<Filme> out = new ArrayList<>();
         if (raiz == null) return out;
@@ -147,14 +127,14 @@ public final class ArvoreSplay {
         return out;
     }
 
-    /** Os n filmes com maior contador de acessos (popularidade por frequência). */
+    // Os n filmes com maior contador de acessos (frequência).
     public List<Filme> maisAcessados(int n) {
         List<Filme> out = new ArrayList<>();
         for (NoSplay no : ordenarPorAcessos(n)) out.add(no.filme);
         return out;
     }
 
-    /** Como {@link #maisAcessados}, mas descrito como "id=N (Kx)" para exibição. */
+    // Como maisAcessados, mas formatado como "id=N (Kx)" para exibição.
     public List<String> maisAcessadosDescritos(int n) {
         List<String> out = new ArrayList<>();
         for (NoSplay no : ordenarPorAcessos(n)) {
@@ -170,7 +150,6 @@ public final class ArvoreSplay {
         return todos.subList(0, Math.min(n, todos.size()));
     }
 
-    /** Acessos acumulados do filme na raiz (0 se vazia). */
     public int acessosDaRaiz() {
         return raiz == null ? 0 : raiz.contadorAcessos;
     }

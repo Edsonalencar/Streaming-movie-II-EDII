@@ -1,4 +1,4 @@
-package estruturas;
+package estruturas.huffman;
 
 class NoHuffman {
     char caractere;     // significativo apenas em folhas

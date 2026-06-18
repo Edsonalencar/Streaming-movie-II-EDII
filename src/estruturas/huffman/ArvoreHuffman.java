@@ -1,20 +1,8 @@
-package estruturas;
+package estruturas.huffman;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Árvore de Huffman para a camada de comunicação cliente↔servidor.
- *
- * <p>Comprime as mensagens trafegadas na "rede" (ex.: {@code GET /filme/505},
- * {@code FILME:505|Matrix|1999}) atribuindo códigos de bits menores aos
- * caracteres mais frequentes. A compressão é sem perdas — a descompressão
- * reconstrói exatamente a mensagem original.</p>
- *
- * <p>A árvore é construída extraindo manualmente os dois nós de menor frequência
- * de uma lista (sem usar {@code PriorityQueue}), atendendo ao requisito de
- * implementar a estrutura do zero.</p>
- */
 public final class ArvoreHuffman {
 
     private static final int ALFABETO = 256; // ASCII estendido
@@ -27,7 +15,7 @@ public final class ArvoreHuffman {
         gerarCodigos(raiz, "");
     }
 
-    /** Constrói a árvore de Huffman a partir das frequências de uma mensagem. */
+    // Constrói a árvore a partir das frequências dos caracteres da mensagem.
     public static ArvoreHuffman construir(String mensagem) {
         int[] freq = new int[ALFABETO];
         for (int i = 0; i < mensagem.length(); i++) freq[mensagem.charAt(i)]++;
@@ -67,14 +55,14 @@ public final class ArvoreHuffman {
         gerarCodigos(no.direita, prefixo + "1");
     }
 
-    /** Codifica a mensagem como uma cadeia de bits ("0"/"1"). */
+    // Codifica a mensagem como uma cadeia de bits.
     public String comprimir(String mensagem) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < mensagem.length(); i++) sb.append(codigos[mensagem.charAt(i)]);
         return sb.toString();
     }
 
-    /** Reconstrói a mensagem original a partir da cadeia de bits. */
+    // Reconstrói a mensagem original a partir da cadeia de bits.
     public String descomprimir(String bits) {
         if (raiz == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -89,14 +77,10 @@ public final class ArvoreHuffman {
         return sb.toString();
     }
 
-    /** Resultado de uma compressão: tamanhos em bits e taxa de compressão. */
     public record ResultadoCompressao(String original, int bitsOriginais,
                                        int bitsComprimidos, double taxa) {}
 
-    /**
-     * Comprime a mensagem e devolve as métricas. O tamanho original assume 8
-     * bits por caractere (codificação fixa, p.ex. ASCII).
-     */
+    // Comprime a mensagem e devolve as métricas. O tamanho original assume 8 bits por caractere.
     public static ResultadoCompressao analisar(String mensagem) {
         ArvoreHuffman arvore = construir(mensagem);
         String bits = arvore.comprimir(mensagem);
