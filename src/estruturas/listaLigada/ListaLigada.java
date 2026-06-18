@@ -1,6 +1,11 @@
-package estruturas;
+package estruturas.listaLigada;
 
+import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListaLigada {
     NoLista cabeca;
@@ -32,11 +37,26 @@ public class ListaLigada {
         return ResultadoBusca.vazio(comparacoes);
     }
 
+    // Busca por parte do nome: varre a lista inteira acumulando os títulos que contêm o trecho.
+    public ResultadoBuscaNome buscarPorNome(String termo) {
+        String alvo = termo.toLowerCase();
+        int comparacoes = 0;
+        List<Filme> achados = new ArrayList<>();
+        NoLista atual = cabeca;
+        while (atual != null) {
+            comparacoes++;
+            if (atual.filme.nome().toLowerCase().contains(alvo)) {
+                achados.add(atual.filme);
+            }
+            atual = atual.proximo;
+        }
+        return new ResultadoBuscaNome(achados, comparacoes);
+    }
+
     public int tamanho() {
         return tamanho;
     }
 
-    // Returns the most-recently-inserted node so Servidor can pass it to TabelaHash.
     public NoLista getCauda() {
         return cauda;
     }

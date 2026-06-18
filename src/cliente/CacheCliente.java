@@ -1,22 +1,14 @@
 package cliente;
 
-import estruturas.ArvoreSplay;
+import estruturas.splay.ArvoreSplay;
 import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 
 import java.util.List;
 
-/**
- * Representa um cliente (frontend/app) da plataforma de streaming.
- *
- * <p>Compõe duas estruturas:</p>
- * <ul>
- *   <li>{@link CacheLRU} — cache local (tabela hash + lista autoajustável) para
- *       evitar requisições à rede;</li>
- *   <li>{@link ArvoreSplay} — registro de preferências, onde o conteúdo mais
- *       recentemente consumido fica na raiz, apoiando recomendações.</li>
- * </ul>
- */
+// Cliente da plataforma. Compõe o cache local (CacheLRU) com uma árvore splay de preferências,
+// onde o conteúdo consumido mais recentemente fica na raiz.
 public final class CacheCliente {
 
     private final String nome;
@@ -32,23 +24,27 @@ public final class CacheCliente {
         return nome;
     }
 
-    /** Busca no cache local (hit promove o item a MRU). */
+    // Busca no cache local (hit promove o item a MRU).
     public ResultadoBusca<Filme> buscar(int id) {
         return cache.buscar(id);
     }
 
-    /** Insere/atualiza o filme no cache local (não registra preferência). */
+    // Busca no cache local por parte do nome, sem tocar o servidor.
+    public ResultadoBuscaNome buscarPorNomeLocal(String termo) {
+        return cache.buscarPorNome(termo);
+    }
+
+    // Insere/atualiza o filme no cache (não registra preferência).
     public void inserir(Filme f) {
         cache.inserir(f);
     }
 
-    /** Registra o consumo de um filme: atualiza cache e árvore de preferências. */
+    // Registra o consumo de um filme: atualiza o cache e a árvore de preferências.
     public void registrarAcesso(Filme f) {
         cache.inserir(f);
         preferencias.inserir(f);
     }
 
-    // ---- análise -------------------------------------------------------------
 
     public List<Filme> dezMaisRecentes() {
         return cache.maisRecentes(10);

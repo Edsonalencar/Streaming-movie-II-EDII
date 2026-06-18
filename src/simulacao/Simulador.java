@@ -1,22 +1,18 @@
 package simulacao;
 
 import cliente.CacheCliente;
-import estruturas.ArvoreHuffman;
+import estruturas.huffman.ArvoreHuffman;
 import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 import servidor.Servidor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Orquestra a simulação de streaming da Prática Offline 3.
- *
- * <p>Três clientes compartilham um servidor. Cada cliente possui cache local
- * (tabela hash + lista autoajustável LRU) e árvore splay de preferências; o
- * servidor mantém lista ligada + tabela hash + árvore splay de popularidade
- * global. A camada de comunicação é demonstrada com compressão de Huffman.</p>
- */
+// Orquestra a simulação: três clientes (cada um com cache LRU e splay de preferências)
+// compartilham um servidor (lista ligada + tabela hash + splay de popularidade). A comunicação
+// é demonstrada com compressão de Huffman.
 public class Simulador {
 
     private static final int TOTAL_FILMES     = 1000;
@@ -25,8 +21,7 @@ public class Simulador {
     private static final long PAUSA_SECAO = 7 * 1000L;
     private static final long PAUSA_FASE  = 1 * 1000L;
 
-    /** Desligado pelos testes para execução instantânea. */
-    boolean comDelays = true;
+    boolean comDelays = true; // desligado pelos testes para execução instantânea
 
     Servidor servidor;
     List<CacheCliente> clientes;
@@ -73,6 +68,7 @@ public class Simulador {
         analisarCacheLRU();
         analisarPreferenciasCliente();
         analisarPopularidadeServidor();
+        demonstrarBuscaPorNome();
         demonstrarHuffman();
         imprimirRelatorio();
     }
@@ -150,7 +146,7 @@ public class Simulador {
         System.out.println();
     }
 
-    // ---- análises ------------------------------------------------------------
+    // análises
 
     void analisarCacheLRU() {
         System.out.println("=== Análise: cache LRU (cliente) ===");
@@ -185,6 +181,51 @@ public class Simulador {
         System.out.println();
     }
 
+    void demonstrarBuscaPorNome() {
+        System.out.println("=== Busca por parte do nome do filme (cliente) ===");
+        System.out.println("O cliente digita um trecho do título; primeiro varre o próprio cache");
+        System.out.println("local e, em caso de miss, requisita a varredura do catálogo ao servidor.");
+        CacheCliente cliente = clientes.get(0); // Ana
+        System.out.println("\nCliente " + cliente.nome() + ":");
+        // "Interestelar" tende a estar no cache (favorito reacessado); o título de
+        // suspense só existe no catálogo do servidor — demonstra o fallback.
+        buscarPorNomeComFallback(cliente, "Interestelar");
+        buscarPorNomeComFallback(cliente, "Silêncio dos Inocentes");
+        System.out.println();
+    }
+
+    // Busca por nome: tenta o cache local primeiro e cai para o servidor em caso de miss.
+    private void buscarPorNomeComFallback(CacheCliente cliente, String termo) {
+        System.out.println("\n  pesquisa: \"" + termo + "\"");
+        ResultadoBuscaNome local = cliente.buscarPorNomeLocal(termo);
+        if (!local.vazio()) {
+            System.out.printf("    [cache local] %d resultado(s) em %d comparações:%n",
+                    local.quantidade(), local.comparacoes());
+            imprimirResultadosNome(local.resultados());
+            cliente.registrarAcesso(local.resultados().get(0));
+            return;
+        }
+        System.out.printf("    [cache local] 0 resultados em %d comparações → consultando servidor...%n",
+                local.comparacoes());
+        ResultadoBuscaNome remoto = servidor.buscarPorNome(termo);
+        System.out.printf("    [servidor   ] %d resultado(s) em %d comparações (varredura sequencial do catálogo):%n",
+                remoto.quantidade(), remoto.comparacoes());
+        imprimirResultadosNome(remoto.resultados());
+        if (!remoto.vazio()) cliente.registrarAcesso(remoto.resultados().get(0));
+    }
+
+    private void imprimirResultadosNome(List<Filme> filmes) {
+        int mostrados = 0;
+        for (Filme f : filmes) {
+            if (mostrados == 5 && filmes.size() > 5) {
+                System.out.printf("      ... (+%d outros)%n", filmes.size() - 5);
+                break;
+            }
+            System.out.printf("      id=%-5d \"%s\" [%s, %d]%n", f.id(), f.nome(), f.categoria(), f.ano());
+            mostrados++;
+        }
+    }
+
     void demonstrarHuffman() {
         System.out.println("=== Análise: compressão de Huffman (comunicação) ===");
         String[] mensagens = {
@@ -216,26 +257,9 @@ public class Simulador {
         System.out.printf("%-28s %18.2f%n", "Sem indexação (lista)", media(totalSemIndice, qtdSemIndice));
         System.out.printf("%-28s %18.2f%n", "Com indexação (hash)", media(totalComIndice, qtdComIndice));
         System.out.println();
-        imprimirAnalise();
     }
 
-    private void imprimirAnalise() {
-        System.out.println("=== Análise dos resultados ===");
-        System.out.println(
-            "A busca no cache local (tabela hash + LRU) e a busca indexada no servidor (tabela\n" +
-            "hash) resolvem em poucas comparações — tempo médio O(1) — enquanto a busca sem\n" +
-            "indexação percorre a lista ligada elemento a elemento (O(n)), exigindo centenas de\n" +
-            "comparações em um catálogo de " + TOTAL_FILMES + " filmes. A política LRU mantém no cache os\n" +
-            "itens mais recentemente usados e descarta os mais antigos, reduzindo requisições à\n" +
-            "rede. A árvore splay de preferências leva o último consumo de cada cliente à raiz,\n" +
-            "base para recomendações personalizadas; já a splay de popularidade do servidor\n" +
-            "concentra perto da raiz os títulos mais acessados pela base inteira, revelando\n" +
-            "tendências globais. Por fim, a árvore de Huffman comprime as mensagens trocadas na\n" +
-            "rede sem perdas, reduzindo o volume de dados trafegados.");
-        System.out.println();
-    }
-
-    // ---- utilitários ---------------------------------------------------------
+    // utilitários
 
     private Filme filmePorId(int id) {
         return filmes.get(id - 1); // ids são 1..TOTAL_FILMES, contíguos

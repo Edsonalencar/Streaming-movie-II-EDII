@@ -1,20 +1,15 @@
 package cliente;
 
 import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Cache do cliente: tabela hash + lista autoajustável (política LRU).
- *
- * <p>A tabela hash dá busca em tempo médio O(1) (conta as comparações feitas no
- * balde, seguindo a convenção ADR-004). A lista duplamente encadeada mantém a
- * ordem de uso: a cabeça é o item mais recentemente usado (MRU) e a cauda o
- * menos recentemente usado (LRU). A cada acesso ou inserção o nó vai para a
- * frente; quando a capacidade é excedida, a cauda é removida (evicção LRU).</p>
- */
+// Cache do cliente: tabela hash (busca O(1)) + lista duplamente encadeada que mantém a ordem de
+// uso. A cabeça é o item mais recente (MRU) e a cauda o menos recente (LRU); quando a capacidade
+// é excedida, a cauda é removida (política LRU).
 public final class CacheLRU {
 
     private static final int CAPACIDADE_HASH = 211; // primo > 50 para espalhar bem
@@ -30,7 +25,7 @@ public final class CacheLRU {
         this.capacidade = capacidade;
     }
 
-    /** Busca um filme pelo id. Em hit, promove o nó a MRU. */
+    // Busca um filme pelo id; em hit, promove o nó a MRU.
     public ResultadoBusca<Filme> buscar(int id) {
         int comparacoes = 0;
         NoLRU no = baldes[indiceDe(id)];
@@ -45,7 +40,21 @@ public final class CacheLRU {
         return ResultadoBusca.vazio(comparacoes);
     }
 
-    /** Insere/atualiza um filme; promove a MRU e aplica evicção LRU se necessário. */
+    // Busca local por parte do nome. Percorre a lista de uso sem promover os itens (read-only).
+    public ResultadoBuscaNome buscarPorNome(String termo) {
+        String alvo = termo.toLowerCase();
+        int comparacoes = 0;
+        List<Filme> achados = new ArrayList<>();
+        NoLRU no = cabeca;
+        while (no != null) {
+            comparacoes++;
+            if (no.filme.nome().toLowerCase().contains(alvo)) achados.add(no.filme);
+            no = no.proximo;
+        }
+        return new ResultadoBuscaNome(achados, comparacoes);
+    }
+
+    // Insere/atualiza um filme, promove a MRU e aplica evicção LRU se passar da capacidade.
     public void inserir(Filme f) {
         NoLRU existente = encontrarNo(f.id());
         if (existente != null) {
@@ -69,7 +78,7 @@ public final class CacheLRU {
         tamanho--;
     }
 
-    // ---- lista autoajustável -------------------------------------------------
+    // lista autoajustável
 
     private void moverParaFrente(NoLRU no) {
         if (no == cabeca) return;
@@ -94,7 +103,7 @@ public final class CacheLRU {
         no.proximo = null;
     }
 
-    // ---- tabela hash ---------------------------------------------------------
+    // tabela hash
 
     private int indiceDe(int id) {
         return Math.floorMod(id, CAPACIDADE_HASH);
@@ -131,9 +140,9 @@ public final class CacheLRU {
         }
     }
 
-    // ---- análise -------------------------------------------------------------
+    // análise
 
-    /** Os n filmes mais recentemente usados, do mais recente ao menos. */
+    // Os n filmes mais recentemente usados, do mais recente ao menos.
     public List<Filme> maisRecentes(int n) {
         List<Filme> out = new ArrayList<>();
         NoLRU no = cabeca;
@@ -144,7 +153,7 @@ public final class CacheLRU {
         return out;
     }
 
-    /** Ids removidos por evicção LRU, em ordem de remoção. */
+    // Ids removidos por evicção LRU, em ordem de remoção.
     public List<Integer> removidos() {
         return removidos;
     }
