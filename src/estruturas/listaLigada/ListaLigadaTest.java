@@ -1,5 +1,7 @@
-package estruturas;
+package estruturas.listaLigada;
 
+import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 
 public class ListaLigadaTest {
@@ -13,6 +15,9 @@ public class ListaLigadaTest {
         testBuscarUltimoDeN();
         testBuscarInexistente();
         testMilFilmes();
+        testBuscarPorNomeParcial();
+        testBuscarPorNomeCaseInsensitive();
+        testBuscarPorNomeSemResultado();
 
         System.out.println("\n=== ListaLigadaTest: " + passed + " passed, " + failed + " failed ===");
         if (failed > 0) System.exit(1);
@@ -70,8 +75,41 @@ public class ListaLigadaTest {
         assertEquals("comparacoes para último de 1000 = 1000", n, r.comparacoes());
     }
 
+    private static void testBuscarPorNomeParcial() {
+        ListaLigada lista = new ListaLigada();
+        lista.inserir(filmeNomeado(1, "O Senhor dos Anéis"));
+        lista.inserir(filmeNomeado(2, "Matrix"));
+        lista.inserir(filmeNomeado(3, "O Senhor das Armas"));
+
+        ResultadoBuscaNome r = lista.buscarPorNome("senhor");
+        assertEquals("busca por \"senhor\" casa 2 títulos", 2, r.quantidade());
+        assertEquals("varredura visita a lista inteira (comparacoes = tamanho)",
+                lista.tamanho(), r.comparacoes());
+        assertTrue("um dos resultados é o id=1", r.resultados().get(0).id() == 1);
+    }
+
+    private static void testBuscarPorNomeCaseInsensitive() {
+        ListaLigada lista = new ListaLigada();
+        lista.inserir(filmeNomeado(1, "Matrix"));
+        ResultadoBuscaNome r = lista.buscarPorNome("MATRIX");
+        assertEquals("busca ignora maiúsculas/minúsculas", 1, r.quantidade());
+    }
+
+    private static void testBuscarPorNomeSemResultado() {
+        ListaLigada lista = new ListaLigada();
+        lista.inserir(filmeNomeado(1, "Matrix"));
+        lista.inserir(filmeNomeado(2, "Avatar"));
+        ResultadoBuscaNome r = lista.buscarPorNome("inexistente");
+        assertTrue("termo ausente — nenhum resultado", r.vazio());
+        assertEquals("miss varre a lista inteira", lista.tamanho(), r.comparacoes());
+    }
+
     private static Filme filme(int id) {
         return new Filme(id, "Filme " + id, "Sinopse", 2020, "Ação");
+    }
+
+    private static Filme filmeNomeado(int id, String nome) {
+        return new Filme(id, nome, "Sinopse", 2020, "Ação");
     }
 
     private static void assertEquals(String label, int expected, int actual) {

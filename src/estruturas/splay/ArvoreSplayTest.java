@@ -1,5 +1,6 @@
-package estruturas;
+package estruturas.splay;
 
+import estruturas.ResultadoBusca;
 import modelo.Filme;
 
 import java.util.List;

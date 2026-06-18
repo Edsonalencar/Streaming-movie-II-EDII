@@ -17,6 +17,7 @@ public class SimuladorTest {
         testComIndiceMenorQueSemIndice();
         testHuffmanIntegridade();
         testEvicaoLRUVisivel();
+        testBuscaPorNomeVisivel();
 
         System.out.println("\n=== SimuladorTest: " + passed + " passed, " + failed + " failed ===");
         if (failed > 0) System.exit(1);
@@ -107,6 +108,16 @@ public class SimuladorTest {
         String out = capturarExecutar(novoMudo());
         assertTrue("seção LRU mostra registros removidos",
                 out.contains("removidos pela política LRU"));
+    }
+
+    private static void testBuscaPorNomeVisivel() {
+        String out = capturarExecutar(novoMudo());
+        assertTrue("contém seção de busca por parte do nome",
+                out.contains("Busca por parte do nome do filme"));
+        assertTrue("cliente pesquisa por trecho do título",
+                out.contains("pesquisa: \"Interestelar\"") && out.contains("pesquisa: \"Silêncio dos Inocentes\""));
+        assertTrue("demonstra busca no cache local", out.contains("[cache local]"));
+        assertTrue("demonstra fallback de varredura no servidor", out.contains("[servidor"));
     }
 
     private static void assertEquals(String label, int expected, int actual) {

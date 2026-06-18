@@ -1,6 +1,7 @@
 package cliente;
 
 import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 
 import java.util.List;
@@ -18,6 +19,8 @@ public class CacheLRUTest {
         testHitPromoveAFrente();
         testRegistraRemovidos();
         testMaisRecentesOrdem();
+        testBuscarPorNomeNoCache();
+        testBuscarPorNomeNaoPromoveMRU();
 
         System.out.println("\n=== CacheLRUTest: " + passed + " passed, " + failed + " failed ===");
         if (failed > 0) System.exit(1);
@@ -82,8 +85,30 @@ public class CacheLRUTest {
         assertEquals("último da lista é o mais antigo (id=1)", 1, rec.get(2).id());
     }
 
+    private static void testBuscarPorNomeNoCache() {
+        CacheLRU c = new CacheLRU(5);
+        c.inserir(filmeNomeado(1, "O Poderoso Chefão"));
+        c.inserir(filmeNomeado(2, "Matrix"));
+        c.inserir(filmeNomeado(3, "O Poderoso Chefão: Parte II"));
+        ResultadoBuscaNome r = c.buscarPorNome("poderoso");
+        assertEquals("busca local por \"poderoso\" casa 2 filmes do cache", 2, r.quantidade());
+    }
+
+    private static void testBuscarPorNomeNaoPromoveMRU() {
+        CacheLRU c = new CacheLRU(5);
+        c.inserir(filmeNomeado(1, "Matrix"));
+        c.inserir(filmeNomeado(2, "Avatar"));
+        c.inserir(filmeNomeado(3, "Duna")); // MRU→LRU: 3,2,1
+        c.buscarPorNome("matrix");          // navegação read-only: não deve promover
+        assertEquals("busca por nome não altera o MRU (segue id=3)", 3, c.maisRecentes(1).get(0).id());
+    }
+
     private static Filme filme(int id) {
         return new Filme(id, "Filme " + id, "Sinopse", 2020, "Ação");
+    }
+
+    private static Filme filmeNomeado(int id, String nome) {
+        return new Filme(id, nome, "Sinopse", 2020, "Ação");
     }
 
     private static void assertEquals(String label, int expected, int actual) {

@@ -1,6 +1,7 @@
 package cliente;
 
 import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 
 public class CacheClienteTest {
@@ -15,6 +16,8 @@ public class CacheClienteTest {
         testNome();
         testRegistrarAcessoAtualizaPreferencia();
         testCincoMaisAcessados();
+        testBuscarPorNomeLocalEncontra();
+        testBuscarPorNomeLocalVazio();
         testImprimirEstadoNaoLancaExcecao();
 
         System.out.println("\n=== CacheClienteTest: " + passed + " passed, " + failed + " failed ===");
@@ -72,6 +75,22 @@ public class CacheClienteTest {
         } catch (Exception e) {
             assertTrue("imprimirEstadoCache não lança exceção: " + e, false);
         }
+    }
+
+    private static void testBuscarPorNomeLocalEncontra() {
+        CacheCliente cache = new CacheCliente("Teste", 50);
+        cache.inserir(new Filme(1, "Interestelar", "Sinopse", 2014, "Ficção Científica"));
+        cache.inserir(new Filme(2, "Matrix", "Sinopse", 1999, "Ficção Científica"));
+        ResultadoBuscaNome r = cache.buscarPorNomeLocal("inter");
+        assertTrue("busca local por \"inter\" encontra Interestelar",
+                r.quantidade() == 1 && r.resultados().get(0).id() == 1);
+    }
+
+    private static void testBuscarPorNomeLocalVazio() {
+        CacheCliente cache = new CacheCliente("Teste", 50);
+        cache.inserir(new Filme(1, "Matrix", "Sinopse", 1999, "Ficção Científica"));
+        ResultadoBuscaNome r = cache.buscarPorNomeLocal("avatar");
+        assertTrue("termo ausente no cache local — sem resultados", r.vazio());
     }
 
     private static Filme filme(int id) {

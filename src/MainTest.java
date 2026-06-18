@@ -43,7 +43,8 @@ public class MainTest {
 
     private static void testContemSecoes(String output) {
         String[] secoes = {"Prática Offline 3", "Bateria de consultas",
-                "cache LRU", "preferências", "popularidade", "Huffman"};
+                "cache LRU", "preferências", "popularidade",
+                "Busca por parte do nome do filme", "Huffman"};
         for (String s : secoes) assertTrue("saída contém seção \"" + s + "\"", output.contains(s));
     }
 

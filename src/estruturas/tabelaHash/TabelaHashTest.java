@@ -1,5 +1,8 @@
-package estruturas;
+package estruturas.tabelaHash;
 
+import estruturas.ResultadoBusca;
+import estruturas.listaLigada.ListaLigada;
+import estruturas.listaLigada.NoLista;
 import modelo.Filme;
 
 public class TabelaHashTest {

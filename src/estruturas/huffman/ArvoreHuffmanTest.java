@@ -1,4 +1,4 @@
-package estruturas;
+package estruturas.huffman;
 
 public class ArvoreHuffmanTest {
 

@@ -1,6 +1,7 @@
 package servidor;
 
 import estruturas.ResultadoBusca;
+import estruturas.ResultadoBuscaNome;
 import modelo.Filme;
 
 public class ServidorTest {
@@ -15,6 +16,9 @@ public class ServidorTest {
         testBuscarSemIndiceInexistente();
         testBuscarComIndiceEncontrado();
         testBuscarComIndiceInexistente();
+        testBuscarPorNomeEncontraVarios();
+        testBuscarPorNomeAlimentaPopularidade();
+        testBuscarPorNomeSemResultado();
         // Integration tests
         testIntegracaoSemIndiceMediaEntre400e600();
         testIntegracaoComIndiceMediaAtE5();
@@ -83,8 +87,39 @@ public class ServidorTest {
         assertTrue("integração com índice: média ≤ 5 (foi " + media + ")", media <= 5);
     }
 
+    private static void testBuscarPorNomeEncontraVarios() {
+        Servidor s = new Servidor();
+        s.inserir(filmeNomeado(1, "O Senhor dos Anéis: A Sociedade do Anel"));
+        s.inserir(filmeNomeado(2, "Matrix"));
+        s.inserir(filmeNomeado(3, "O Senhor dos Anéis: O Retorno do Rei"));
+        ResultadoBuscaNome r = s.buscarPorNome("senhor dos anéis");
+        assertEquals("busca por nome casa os 2 títulos da franquia", 2, r.quantidade());
+        assertEquals("varredura sequencial visita o catálogo inteiro", s.tamanho(), r.comparacoes());
+    }
+
+    private static void testBuscarPorNomeAlimentaPopularidade() {
+        Servidor s = new Servidor();
+        s.inserir(filmeNomeado(1, "Matrix"));
+        s.inserir(filmeNomeado(2, "Avatar"));
+        assertTrue("popularidade vazia antes da busca", s.filmeMaisPopular() == null);
+        s.buscarPorNome("matrix");
+        assertTrue("título casado alimenta a splay de popularidade", s.filmeMaisPopular() != null);
+    }
+
+    private static void testBuscarPorNomeSemResultado() {
+        Servidor s = new Servidor();
+        for (int i = 1; i <= 10; i++) s.inserir(filme(i));
+        ResultadoBuscaNome r = s.buscarPorNome("titulo inexistente");
+        assertTrue("termo ausente — nenhum resultado", r.vazio());
+        assertEquals("miss varre o catálogo inteiro", 10, r.comparacoes());
+    }
+
     private static Filme filme(int id) {
         return new Filme(id, "Filme " + id, "Sinopse", 2020, "Ação");
+    }
+
+    private static Filme filmeNomeado(int id, String nome) {
+        return new Filme(id, nome, "Sinopse", 2020, "Ação");
     }
 
     private static void assertEquals(String label, int expected, int actual) {
