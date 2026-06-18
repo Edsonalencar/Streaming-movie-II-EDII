@@ -5,13 +5,8 @@ import modelo.Filme;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Gera o catálogo de filmes do servidor a partir de um pool curado de títulos
- * reais (com ano e categoria corretos). Como a simulação exige 1000 filmes, o
- * gerador percorre ciclicamente o pool: cada id recebe um título real e seus
- * metadados consistentes. A geração é determinística (sem aleatoriedade), de
- * modo que duas chamadas produzem exatamente o mesmo catálogo.
- */
+// Gera o catálogo do servidor a partir de um pool de títulos reais, percorrido ciclicamente
+// até completar a quantidade pedida. A geração é determinística (sem aleatoriedade).
 public class GeradorDeFilmes {
 
     private record Titulo(String nome, int ano, String categoria) {}

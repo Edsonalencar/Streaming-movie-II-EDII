@@ -2,11 +2,7 @@ package cliente;
 
 import modelo.Filme;
 
-/**
- * Nó da lista autoajustável (duplamente encadeada) do cache LRU.
- * A cabeça da lista guarda o item mais recentemente usado (MRU) e a cauda o
- * menos recentemente usado (LRU).
- */
+// Nó da lista duplamente encadeada do cache LRU.
 class NoLRU {
     Filme filme;
     NoLRU anterior;
