@@ -1,5 +1,6 @@
 package cliente;
 
+import estruturas.cacheLRU.CacheLRU;
 import estruturas.splay.ArvoreSplay;
 import estruturas.ResultadoBusca;
 import estruturas.ResultadoBuscaNome;

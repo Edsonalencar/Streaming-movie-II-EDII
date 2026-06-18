@@ -37,11 +37,11 @@ javac -encoding UTF-8 -d out $(find src -name "*.java") && java -cp out Main
 mkdir -p out
 javac -encoding UTF-8 -d out $(find src -name "*.java")
 
-java -cp out estruturas.ListaLigadaTest
-java -cp out estruturas.TabelaHashTest
-java -cp out estruturas.ArvoreSplayTest
-java -cp out estruturas.ArvoreHuffmanTest
-java -cp out cliente.CacheLRUTest
+java -cp out estruturas.listaLigada.ListaLigadaTest
+java -cp out estruturas.tabelaHash.TabelaHashTest
+java -cp out estruturas.splay.ArvoreSplayTest
+java -cp out estruturas.huffman.ArvoreHuffmanTest
+java -cp out estruturas.cacheLRU.CacheLRUTest
 java -cp out cliente.CacheClienteTest
 java -cp out servidor.ServidorTest
 java -cp out simulacao.GeradorDeFilmesTest

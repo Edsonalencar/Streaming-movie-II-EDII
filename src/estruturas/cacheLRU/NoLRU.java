@@ -1,4 +1,4 @@
-package cliente;
+package estruturas.cacheLRU;
 
 import modelo.Filme;
 
