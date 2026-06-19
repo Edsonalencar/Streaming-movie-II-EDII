@@ -21,19 +21,24 @@ public final class ArvoreHuffman {
         for (int i = 0; i < mensagem.length(); i++) freq[mensagem.charAt(i)]++;
 
         List<NoHuffman> nos = new ArrayList<>();
+
         for (int c = 0; c < ALFABETO; c++) {
             if (freq[c] > 0) nos.add(new NoHuffman((char) c, freq[c]));
         }
+
         if (nos.isEmpty()) return new ArvoreHuffman(null);
+
         if (nos.size() == 1) {
             // único símbolo: cria um pai para que a folha receba o código "0"
             return new ArvoreHuffman(new NoHuffman(nos.get(0), new NoHuffman('\0', 0)));
         }
+
         while (nos.size() > 1) {
             NoHuffman a = removerMenor(nos);
             NoHuffman b = removerMenor(nos);
             nos.add(new NoHuffman(a, b));
         }
+
         return new ArvoreHuffman(nos.get(0));
     }
 

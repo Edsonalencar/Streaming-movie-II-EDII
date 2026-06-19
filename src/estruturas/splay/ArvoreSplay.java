@@ -17,13 +17,17 @@ public final class ArvoreSplay {
             raiz = new NoSplay(f);
             return;
         }
+
         raiz = splay(raiz, f.id());
+
         if (raiz.filme.id() == f.id()) {
             raiz.filme = f;
             raiz.contadorAcessos++;
             return;
         }
+
         NoSplay novo = new NoSplay(f);
+
         if (f.id() < raiz.filme.id()) {
             novo.direita = raiz;
             novo.esquerda = raiz.esquerda;
@@ -33,18 +37,22 @@ public final class ArvoreSplay {
             novo.direita = raiz.direita;
             raiz.direita = null;
         }
+
         raiz = novo;
     }
 
     // Acessa um filme pelo id: traz à raiz, conta o acesso e devolve as comparações da busca.
     public ResultadoBusca<Filme> acessar(int id) {
         if (raiz == null) return ResultadoBusca.vazio(0);
+
         raiz = splay(raiz, id);
         int comparacoes = comparacoesUltimaOperacao;
+
         if (raiz.filme.id() == id) {
             raiz.contadorAcessos++;
             return new ResultadoBusca<>(raiz.filme, comparacoes);
         }
+
         return ResultadoBusca.vazio(comparacoes);
     }
 
@@ -58,30 +66,41 @@ public final class ArvoreSplay {
 
         while (true) {
             comparacoesUltimaOperacao++;
+
             if (id < t.filme.id()) {
+                // a chave está à ESQUERDA
+
                 if (t.esquerda == null) break;
                 comparacoesUltimaOperacao++;
+
                 if (id < t.esquerda.filme.id()) {
-                    t = rotacaoDireita(t);     // zig-zig
+                    t = rotacaoDireita(t); // zig-zig
                     if (t.esquerda == null) break;
                 }
-                maiores.esquerda = t;          // liga à direita (chaves maiores)
+
+                maiores.esquerda = t; // liga à direita (chaves maiores)
                 maiores = t;
                 t = t.esquerda;
             } else if (id > t.filme.id()) {
+                // a chave está à DIREITA
+
                 if (t.direita == null) break;
                 comparacoesUltimaOperacao++;
+
                 if (id > t.direita.filme.id()) {
-                    t = rotacaoEsquerda(t);    // zig-zig
+                    t = rotacaoEsquerda(t); // zig-zig
                     if (t.direita == null) break;
                 }
-                menores.direita = t;           // liga à esquerda (chaves menores)
+
+                menores.direita = t; // liga à esquerda (chaves menores)
                 menores = t;
                 t = t.direita;
             } else {
+                // achou! t é o nó procurado
                 break;
             }
         }
+
         // remonta a árvore com t na raiz
         menores.direita = t.esquerda;
         maiores.esquerda = t.direita;
@@ -112,9 +131,11 @@ public final class ArvoreSplay {
     // Os n filmes mais próximos da raiz, percorrendo a árvore por nível.
     public List<Filme> maisProximosDaRaiz(int n) {
         List<Filme> out = new ArrayList<>();
+
         if (raiz == null) return out;
         List<NoSplay> nivel = new ArrayList<>();
         nivel.add(raiz);
+
         while (!nivel.isEmpty() && out.size() < n) {
             List<NoSplay> proximo = new ArrayList<>();
             for (NoSplay no : nivel) {
@@ -124,6 +145,7 @@ public final class ArvoreSplay {
             }
             nivel = proximo;
         }
+
         return out;
     }
 
