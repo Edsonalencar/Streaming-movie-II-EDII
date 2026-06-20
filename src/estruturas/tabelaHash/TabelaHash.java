@@ -20,7 +20,7 @@ public class TabelaHash {
 
     public ResultadoBusca<NoLista> buscar(int id) {
         int indice = Math.floorMod(id, CAPACIDADE);
-        int comparacoes = 1; // o acesso ao balde conta como 1 comparação
+        int comparacoes = 0; // conta apenas as comparações de chave na corrente do balde
         EntradaHash entrada = baldes[indice];
         while (entrada != null) {
             comparacoes++;

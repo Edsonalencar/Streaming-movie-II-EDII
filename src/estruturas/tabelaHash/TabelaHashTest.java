@@ -11,8 +11,8 @@ public class TabelaHashTest {
     private static int failed = 0;
 
     public static void main(String[] args) {
-        testBuscarEmTabelaVaziaRetorna1Comparacao();
-        testBuscarAposUmaInsercaoRetorna2Comparacoes();
+        testBuscarEmTabelaVaziaRetorna0Comparacoes();
+        testBuscarAposUmaInsercaoRetorna1Comparacao();
         testBuscarAposInsercaoRetornaRefNoCorreto();
         testMilInsercoesTodosEncontrados();
         testMilInsercoesMaxCadeiaAte3();
@@ -23,14 +23,14 @@ public class TabelaHashTest {
         if (failed > 0) System.exit(1);
     }
 
-    private static void testBuscarEmTabelaVaziaRetorna1Comparacao() {
+    private static void testBuscarEmTabelaVaziaRetorna0Comparacoes() {
         TabelaHash tabela = new TabelaHash();
         ResultadoBusca<NoLista> r = tabela.buscar(99);
         assertTrue("miss em tabela vazia — não encontrado", !r.encontrado());
-        assertEquals("miss em tabela vazia — comparacoes = 1", 1, r.comparacoes());
+        assertEquals("miss em tabela vazia — comparacoes = 0", 0, r.comparacoes());
     }
 
-    private static void testBuscarAposUmaInsercaoRetorna2Comparacoes() {
+    private static void testBuscarAposUmaInsercaoRetorna1Comparacao() {
         TabelaHash tabela = new TabelaHash();
         ListaLigada lista = new ListaLigada();
         lista.inserir(filme(42));
@@ -39,7 +39,7 @@ public class TabelaHashTest {
 
         ResultadoBusca<NoLista> r = tabela.buscar(42);
         assertTrue("hit após uma inserção — encontrado", r.encontrado());
-        assertEquals("hit após uma inserção — comparacoes = 2", 2, r.comparacoes());
+        assertEquals("hit após uma inserção — comparacoes = 1", 1, r.comparacoes());
     }
 
     private static void testBuscarAposInsercaoRetornaRefNoCorreto() {
@@ -77,13 +77,13 @@ public class TabelaHashTest {
             lista.inserir(filme(i));
             tabela.inserir(i, lista.getCauda());
         }
-        // comparacoes = 1 (bucket) + chain_length; chain_length <= 3 means comparacoes <= 4
+        // comparacoes = comprimento da cadeia percorrida até o hit; cadeia <= 3
         int maxComparacoes = 0;
         for (int i = 1; i <= 1000; i++) {
             int c = tabela.buscar(i).comparacoes();
             if (c > maxComparacoes) maxComparacoes = c;
         }
-        assertTrue("max comprimento de cadeia ≤ 3 (comparacoes ≤ 4)", maxComparacoes <= 4);
+        assertTrue("max comprimento de cadeia ≤ 3 (comparacoes ≤ 3)", maxComparacoes <= 3);
     }
 
     private static void testBuscarInexistenteRetornaNaoEncontrado() {
@@ -94,7 +94,8 @@ public class TabelaHashTest {
 
         ResultadoBusca<NoLista> r = tabela.buscar(9999);
         assertTrue("ID inexistente — não encontrado", !r.encontrado());
-        assertTrue("ID inexistente — comparacoes >= 1", r.comparacoes() >= 1);
+        // 9999 mod 2003 = 1987, balde vazio → nenhuma comparação de chave
+        assertEquals("ID inexistente em balde vazio — comparacoes = 0", 0, r.comparacoes());
     }
 
     private static void testColisaoEncadeamentoCorreto() {
@@ -111,11 +112,11 @@ public class TabelaHashTest {
 
         ResultadoBusca<NoLista> r1 = tabela.buscar(1);
         assertTrue("colisão — id=1 encontrado", r1.encontrado());
-        assertEquals("colisão — id=1 comparacoes = 3 (bucket + miss 2004 + hit 1)", 3, r1.comparacoes());
+        assertEquals("colisão — id=1 comparacoes = 2 (miss 2004 + hit 1)", 2, r1.comparacoes());
 
         ResultadoBusca<NoLista> r2004 = tabela.buscar(2004);
         assertTrue("colisão — id=2004 encontrado", r2004.encontrado());
-        assertEquals("colisão — id=2004 comparacoes = 2 (bucket + hit 2004)", 2, r2004.comparacoes());
+        assertEquals("colisão — id=2004 comparacoes = 1 (hit 2004)", 1, r2004.comparacoes());
     }
 
     private static Filme filme(int id) {

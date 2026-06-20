@@ -55,7 +55,7 @@ public class ServidorTest {
         for (int i = 1; i <= 10; i++) {
             ResultadoBusca<Filme> r = s.buscarComIndice(i);
             assertTrue("buscarComIndice id=" + i + " — encontrado", r.encontrado());
-            assertTrue("buscarComIndice id=" + i + " — comparacoes <= 3", r.comparacoes() <= 3);
+            assertTrue("buscarComIndice id=" + i + " — comparacoes <= 2", r.comparacoes() <= 2);
         }
     }
 
